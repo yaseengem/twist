@@ -1,0 +1,7 @@
+git remote add origin https://github.com/yaseengem/twist.git
+git branch -M main
+git push -u origin main
+
+
+  git config --global user.email "yaseengem@gmail.com"
+  git config --global user.name "Yaseen M"
