@@ -51,3 +51,7 @@ Ollama: Suitable for hosting the model.
 
 DevOps and Deployment:
 CI/CD Tools: GitHub Actions is a great choice for automating your build, test, and deployment pipelines.
+
+
+
+ssh-copy-id twist@192.168.35.129
