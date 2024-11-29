@@ -55,3 +55,7 @@ build/
 *.log
 *.tmp
 *.temp
+
+
+
+backend/llm/data/

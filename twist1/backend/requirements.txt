@@ -1,3 +1,5 @@
 fastapi
 uvicorn
 ollama
+chromadb 
+langchain
