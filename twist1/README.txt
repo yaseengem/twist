@@ -1,4 +1,8 @@
 
+
+This app is a AI ATS checker. This app will take the resume and job description and respond with the changes needed and score.
+
+
 Front-End Technologies:
 Expo (React Native): Great choice for building cross-platform mobile applications.
 Redux: Excellent for state management in complex React applications.

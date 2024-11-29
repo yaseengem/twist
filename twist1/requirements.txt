@@ -1,0 +1,10 @@
+
+fastapi
+uvicorn
+pymongo
+pydantic
+python-dotenv
+passlib
+pyjwt
+tensorflow
+ollama
