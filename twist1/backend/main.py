@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from api import api_router
-from ollama import llm_router
+from api.api_router import api_router
+from ollama.llm_router import llm_router
 
 app = FastAPI()
 
