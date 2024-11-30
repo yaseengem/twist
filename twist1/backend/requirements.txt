@@ -9,3 +9,5 @@ torchvision
 torchaudio
 transformers 
 datasets
+PyPDF2
+huggingface-hub
