@@ -11,9 +11,10 @@ transformers
 datasets
 PyPDF2
 huggingface-hub
-transformers[torch]
+transformers
 accelerate
 httpx
 intel-tensorflow
+tensorflow==2.18.0
 numpy
 pandas
