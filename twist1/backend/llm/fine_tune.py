@@ -1,6 +1,6 @@
 import os
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
+import tensorflow as tf
+from transformers import TFAutoModelForCausalLM, AutoTokenizer, TFTrainer, TFTrainingArguments
 from datasets import Dataset
 import PyPDF2
 
@@ -27,11 +27,13 @@ train_dataset = train_test_split["train"]
 test_dataset = train_test_split["test"]
 
 # Check if GPU is available
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = tf.config.list_physical_devices('GPU')
+if device:
+    tf.config.experimental.set_memory_growth(device[0], True)
 
 # Download the LLaMA 3.2 1B model and tokenizer
 model_name = "meta-llama/LLaMA-3.2-1B"
-model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+model = TFAutoModelForCausalLM.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Set the padding token
@@ -45,23 +47,19 @@ def tokenize_function(examples):
 train_dataset = train_dataset.map(tokenize_function, batched=True)
 test_dataset = test_dataset.map(tokenize_function, batched=True)
 
-
 # Define training arguments
-training_args = TrainingArguments(
+training_args = TFTrainingArguments(
     output_dir="./results",
     num_train_epochs=3,
     per_device_train_batch_size=1,  # Reduce batch size
     per_device_eval_batch_size=1,   # Reduce batch size
     gradient_accumulation_steps=8,  # Accumulate gradients
     fp16=True,                      # Use mixed precision training
-    eval_strategy="epoch",
+    evaluation_strategy="epoch",
     save_strategy="epoch",
     logging_dir="./logs",
     logging_steps=10,
 )
-
-# Enable gradient checkpointing
-model.gradient_checkpointing_enable()
 
 # Tokenize the dataset with a reduced max length and include labels
 def tokenize_function(examples):
@@ -75,11 +73,11 @@ test_dataset = test_dataset.map(tokenize_function, batched=True)
 # Define a compute_metrics function (optional)
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
-    return {"accuracy": (predictions == labels).mean()}
+    predictions = tf.argmax(logits, axis=-1)
+    return {"accuracy": tf.reduce_mean(tf.cast(predictions == labels, tf.float32)).numpy()}
 
 # Initialize the Trainer
-trainer = Trainer(
+trainer = TFTrainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,

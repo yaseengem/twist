@@ -14,3 +14,6 @@ huggingface-hub
 transformers[torch]
 accelerate
 httpx
+intel-tensorflow
+numpy
+pandas
