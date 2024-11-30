@@ -4,3 +4,8 @@ ollama
 chromadb 
 langchain
 fitz
+torch 
+torchvision 
+torchaudio
+transformers 
+datasets
