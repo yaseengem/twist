@@ -9,3 +9,6 @@ pip install -r requirements.txt
 # for Windows
 # source venv/Scripts/activate
 # pip install -r requirements.txt
+
+# To upgarde all the packages
+# pip install --upgrade -r requirements.txt
