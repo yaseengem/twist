@@ -11,3 +11,5 @@ transformers
 datasets
 PyPDF2
 huggingface-hub
+transformers[torch] 
+accelerate>=0.26.0

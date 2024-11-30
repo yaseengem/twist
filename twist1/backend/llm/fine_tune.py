@@ -34,26 +34,43 @@ model_name = "meta-llama/LLaMA-3.2-1B"
 model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-# Tokenize the datasets
+# Set the padding token
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+# Tokenize the dataset
 def tokenize_function(examples):
     return tokenizer(examples["text"], padding="max_length", truncation=True)
 
 train_dataset = train_dataset.map(tokenize_function, batched=True)
 test_dataset = test_dataset.map(tokenize_function, batched=True)
 
+
 # Define training arguments
 training_args = TrainingArguments(
     output_dir="./results",
     num_train_epochs=3,
-    per_device_train_batch_size=4,
-    per_device_eval_batch_size=4,
-    warmup_steps=500,
-    weight_decay=0.01,
+    per_device_train_batch_size=1,  # Reduce batch size
+    per_device_eval_batch_size=1,   # Reduce batch size
+    gradient_accumulation_steps=8,  # Accumulate gradients
+    fp16=True,                      # Use mixed precision training
+    eval_strategy="epoch",
+    save_strategy="epoch",
     logging_dir="./logs",
     logging_steps=10,
 )
 
-# Initialize Trainer
+# Enable gradient checkpointing
+model.gradient_checkpointing_enable()
+
+# Tokenize the dataset with a reduced max length
+def tokenize_function(examples):
+    return tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+
+train_dataset = train_dataset.map(tokenize_function, batched=True)
+test_dataset = test_dataset.map(tokenize_function, batched=True)
+
+# Initialize the Trainer
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -61,7 +78,7 @@ trainer = Trainer(
     eval_dataset=test_dataset,
 )
 
-# Fine-tune the model
+# Train the model
 trainer.train()
 
 # Save the fine-tuned model
