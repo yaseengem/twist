@@ -63,12 +63,20 @@ training_args = TrainingArguments(
 # Enable gradient checkpointing
 model.gradient_checkpointing_enable()
 
-# Tokenize the dataset with a reduced max length
+# Tokenize the dataset with a reduced max length and include labels
 def tokenize_function(examples):
-    return tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+    tokenized_inputs = tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
+    tokenized_inputs["labels"] = tokenized_inputs["input_ids"].copy()
+    return tokenized_inputs
 
 train_dataset = train_dataset.map(tokenize_function, batched=True)
 test_dataset = test_dataset.map(tokenize_function, batched=True)
+
+# Define a compute_metrics function (optional)
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=-1)
+    return {"accuracy": (predictions == labels).mean()}
 
 # Initialize the Trainer
 trainer = Trainer(
@@ -76,6 +84,7 @@ trainer = Trainer(
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=test_dataset,
+    compute_metrics=compute_metrics,  # Optional
 )
 
 # Train the model
