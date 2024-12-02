@@ -4,20 +4,43 @@ from transformers import TFAutoModelForCausalLM, AutoTokenizer, TFTrainer, TFTra
 from datasets import Dataset
 import PyPDF2
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()  # This loads the .env file
+huggingface_token = os.getenv('HUGGINGFACE_TOKEN')
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+logger.info("Hugging face token: " + huggingface_token)
+
+# Ensure the token is used for authentication
+model_name = "meta-llama/LLaMA-3.2-1B"
+logger.info(f"Loading model and tokenizer: {model_name}")
+
+try:
+    model = TFAutoModelForCausalLM.from_pretrained(model_name, use_auth_token=huggingface_token)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=huggingface_token)
+    logger.info("Model and tokenizer loaded successfully")
+except Exception as e:
+    logger.error(f"Error loading model and tokenizer: {e}")
+    raise
+
 # Function to extract text from PDF files
 def extract_text_from_pdfs(pdf_dir):
     texts = []
     for pdf_file in os.listdir(pdf_dir):
-        with open(os.path.join(pdf_dir, pdf_file), 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                texts.append(page.extract_text())
+        if pdf_file.endswith('.pdf'):
+            with open(os.path.join(pdf_dir, pdf_file), 'rb') as f:
+                reader = PyPDF2.PdfFileReader(f)
+                text = ''
+                for page_num in range(reader.numPages):
+                    text += reader.getPage(page_num).extract_text()
+                texts.append(text)
     return texts
+
+# Rest of your code...
 
 # Preprocess PDF files
 pdf_dir = "./training_data"
@@ -44,10 +67,8 @@ else:
     logger.info("GPU is not available, using CPU")
 
 # Download the LLaMA 3.2 1B model and tokenizer
-model_name = "meta-llama/LLaMA-3.2-1B"
-logger.info(f"Loading model and tokenizer: {model_name}")
-model = TFAutoModelForCausalLM.from_pretrained(model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+
 
 # Set the padding token
 if tokenizer.pad_token is None:
