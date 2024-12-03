@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logger.info("Hugging face token: " + huggingface_token)
 
 # Ensure the token is used for authentication
-model_name = "meta-llama/LLaMA-3.2-1B"
+model_name = "meta-llama/Llama-3.2-1B"
 logger.info(f"Loading model and tokenizer: {model_name}")
 
 try:
